@@ -6,47 +6,38 @@ use SimpleXMLElement;
 
 class XmlExporter
 {
-    public static function jsonToXml($content, string $filename)
+    public function jsonToXml($content, string $filename)
     {
-        $a = new SimpleXMLElement('<news/>');
+        $content = json_decode($content);
+
+        $news = new SimpleXMLElement('<news/>');
 
         static::checkVersion($content->version);
 
-        foreach ($content as $key => $i) {
-            if (is_array($i)) {
-                $a->addChild($key);
-                continue;
-            }
-            $a->addChild($key, $i);
-        }
+        $this->addChildFromArray($content, $news);
 
-        foreach ($content->items as $numberKey => $contentItem) {
+        $news->asXML($filename . ".xml");
+    }
 
-            $childrenName = "item";
-
-            $a->items->addChild($childrenName);
-
-            foreach ($contentItem as $key => $item) {
-                if (is_array($item)) {
-
-                    foreach ($item as $itemKey => $itemValue) {
-                        $a->items->$childrenName[$numberKey]->$key->$itemKey = $itemValue;
-                    }
-
-                    continue;
-                }
-                if (is_object($item)) {
-                    foreach ($item as $k => $v) {
-                        $a->items->$childrenName[$numberKey]->$key->$k = $v;
-                    }
-
-                    continue;
-                }
-
-                $a->items->$childrenName[$numberKey]->$key = $item;
+    public function addChildFromArray($array, SimpleXMLElement &$xml)
+    {
+        foreach ($array as $key => $value) {
+            if (is_object($value) || is_array($value)) {
+                $child = $xml->addChild($this->replaceIntToString($key));
+                $this->addChildFromArray($value, $child);
+            } else {
+                $xml->addChild($this->replaceIntToString($key), $value);
             }
         }
-        $a->asXML($filename . ".xml");
+    }
+
+    public function replaceIntToString($value)
+    {
+        if (is_integer($value)) {
+            return 'item';
+        }
+
+        return $value;
     }
 
     protected function checkVersion(string $version)

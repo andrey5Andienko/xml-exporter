@@ -9,10 +9,6 @@ use GuzzleHttp\Client;
 
 $downloader = new Downloader(new Client);
 
-$content = $downloader->download('laravel-news.com/feed/json');
+$content = (string) $downloader->download('laravel-news.com/feed/json')->current();
 
-foreach ($content as $item) {
-    $jsons = json_decode((string)$item);
-}
-
-XmlExporter::jsonToXml($jsons, 'file');
+(new XmlExporter)->jsonToXml($content, 'files');
