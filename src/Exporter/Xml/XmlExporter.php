@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exporter;
+namespace App\Exporter\Xml;
 
 use SimpleXMLElement;
 
@@ -27,7 +27,7 @@ class XmlExporter
         $news->asXML($filename . ".xml");
     }
 
-    protected function addChildFromArray(array $array, SimpleXMLElement &$xml): void
+    protected function addChildFromArray(array $array, SimpleXMLElement $xml): void
     {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
@@ -50,6 +50,7 @@ class XmlExporter
         if ($version === 'https://jsonfeed.org/version/1') {
             return true;
         }
+
         throw new \Exception('Json version must have https://jsonfeed.org/version/1');
     }
 }
